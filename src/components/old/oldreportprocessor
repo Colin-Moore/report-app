@@ -1,0 +1,354 @@
+// import React, { Component, StrictMode } from "react";
+// import axios from "axios";
+// import withRouter from "../withRouter";
+// import EnhancedReportTable from "./EnhancedReportTable";
+// import PrinterFriendlyTable from "./PrinterFriendlyTable"
+// import ViewAsList from "./ViewAsList";
+// import PrinterFriendlyList from "../PrinterFriendlyList";
+// import Report from "../models/report";
+// import Section from "../models/Section";
+// import Subsection from "../models/subsection";
+// import Tester from "./tester";
+// class EnhancedReport extends Component {
+
+//   constructor() {
+//     super();
+
+//     this.state = {
+//       title: "Report",
+//       date: "",
+//       headers: [],
+//       parameters: [],
+//       total: [],
+//       sections: [],
+//       dividers: [],
+//       csvData: [],
+//       report: null,
+//       isLoading: true,
+//       expandedSections: [],
+//       printerFriendly: false,
+//       columnWidths: [],
+//       reportType: "",
+//       start: 0,
+//       end: 10,
+//       page: 0,
+//       totalPages: 0
+
+//     };
+//   }
+
+//   componentDidMount() {
+//     const FOLDER = this.props.params.folder;
+//     const FILENAME = this.props.params.filename;
+//     this.setState({ folder: FOLDER, filename: FILENAME });
+//     console.log("hey")
+
+//     axios.get(`http://localhost:4444/test/${FOLDER}/${FILENAME}`).then(res => {
+
+//       this.parseCSV(res.data)
+//       const divider = [];
+
+//       this.setState({ title: res.data.title });
+//       this.setState({ date: res.data.date });
+//       this.setState({ headers: res.data.header[0].filter(value => value.length > 2) });
+//       this.setState({ reportType: res.data.reportType.length > 0 ? res.data.reportType[0] : "" });
+//       this.setState({ parameters: res.data.parameters[0].filter(value => value.length > 2) })
+//       divider.push(res.data.divider[0])
+//       this.setState({ isLoading: false });
+//     }).catch(function (err) {
+//       alert(err);
+//     });
+//   }
+
+//   parseCSV = (csvText) => {
+//     const reportSections = [];
+//     const total = [];
+//     const columnWidths = [];
+
+//     const headers = csvText.header[0]
+
+//     const report = this.buildReport(csvText.sections, csvText.header[0]);
+
+//     report.subsections.forEach(sec => {
+//       reportSections.push(sec);
+//     })
+
+//     this.setState({ report: reportSections })
+
+//     const pages = Math.ceil(reportSections.length / 10);
+//     this.setState({ totalPages: pages });
+
+//     csvText.total?.forEach((val) => {
+//       if (val.length === headers.length) {
+//         const row = {};
+//         headers.forEach((header, index) => {
+//           row[header] = val[index];
+//         });
+//         total.push(row);
+//       }
+//     });
+//     this.setState({ total: total })
+
+//     csvText.widths?.forEach((val) => {
+//       if (val.length === headers.length) {
+//         const row = {};
+//         headers.forEach((header, index) => {
+//           row[header] = val[index];
+//         });
+//         columnWidths.push(row);
+//       }
+//     });
+//     this.setState({ columnWidths: columnWidths })
+//   };
+
+//   buildReport = (data, headers) => {
+//     let transformedKey = 0;
+
+//     const report = {
+//       key: '',
+//       name: [],
+//       value: [],
+//       total: [],
+//       widths: [],
+//       subsections: [],
+//     };
+//     const keys = []
+
+//     let newKey = Math.random() * 10;
+//     transformedKey = Math.floor((parseFloat(newKey).toFixed(2) * 1000)).toString()
+
+//     while (keys.includes(transformedKey)) {
+//       let newKey = Math.random() * 10;
+//       transformedKey = Math.floor((parseFloat(newKey).toFixed(2) * 1000)).toString()
+//     }
+
+//     keys.push(transformedKey);
+//     report.key = transformedKey;
+
+//     data.key?.forEach((line) => {
+//       if (line.length === headers.length) {
+//         const row = {};
+//         headers.forEach((header, index) => {
+//           row[header] = line[index];
+
+//         });
+//         report.name.push(row);
+//       }
+//     });
+
+//     if (data.headers[0].length > 0) {
+//       let subheaders = data.headers[0];
+//       data.value?.forEach((line) => {
+//         line.forEach((val) => {
+//           if (val.length === subheaders[0].length) {
+//             const row = {};
+//             subheaders[0].forEach((header, index) => {
+//               if (index === 0) {
+//                 row[0] = 'subtable'
+//               }
+//               else {
+//                 row[header] = val[index];
+//               }
+//             });
+//             report.value.push(row);
+//           }
+//         })
+//       });
+
+//       if (data.widths[0].length > 0) {
+//         data.widths[0].forEach((line) => {
+//           if (line.length === headers.length) {
+//             const row = {};
+//             subheaders[0].forEach((header, index) => {
+//               row[header] = line[index];
+
+//             });
+//             report.widths.push(row);
+//           }
+//         })
+//       }
+//       report.value.push('end')
+//     }
+//     else {
+//       data.value?.forEach((line) => {
+//         line.forEach((val) => {
+//           if (val.length === headers.length) {
+//             const row = {};
+//             headers.forEach((header, index) => {
+//               row[header] = val[index];
+//             });
+//             report.value.push(row);
+//           }
+//         })
+//       });
+//     }
+
+//     data.total?.forEach((line) => {
+//       line.forEach((val) => {
+//         if (val.length === headers.length) {
+//           const row = {};
+//           headers.forEach((header, index) => {
+//             row[header] = val[index];
+//           });
+//           report.total.push(row);
+//         }
+//       })
+//     });
+
+//     data.subsections?.forEach((subsection) => {  ///this will affect how many records are displayed...
+//       report.subsections.push(this.buildReport(subsection, headers));
+//     });
+
+//     return report;
+//   }
+
+//   printerFriendly = () => {
+//     this.state.printerFriendly === false ?
+//       this.setState({ printerFriendly: true })
+//       :
+//       this.setState({ printerFriendly: false })
+//   }
+//   changePage = (page) => {
+//     if (page >= 0 && page < this.state.totalPages) {
+//       let currStart = this.state.start;
+//       let currEnd = this.state.end;
+
+//       currStart = page * 10;
+//       currEnd = page * 10 + 10;
+//       this.setState({ page: page })
+//       this.setState({ start: currStart })
+//       this.setState({ end: currEnd })
+//     }
+//   }
+//   nextPage = () => {
+
+//     let currPage = this.state.page;
+//     currPage++;
+//     this.changePage(currPage);
+
+//   }
+
+//   prevPage = () => {
+//     let currPage = this.state.page;
+//     currPage--;
+//     this.changePage(currPage);
+//   }
+
+//   render() {
+
+//     const { isLoading, columnWidths, report, total, title, headers, parameters, date, dividers, reportType } = this.state;
+
+//     return (
+//       <div>
+//         {isLoading ? (
+//           <p>Loading...</p>
+//         ) : (
+//           <>
+//             <button onClick={() => this.printerFriendly()} style={buttonStyle}>
+//               {this.state.printerFriendly === false ? 'Expand All' : 'Collapse All'}
+//             </button>
+//             <div className="report_header" style={report_title}>
+//               <img style={logoStyle} src={require('./CPLogo.ico')} />
+//               <div style={reportTitle}>
+//                 <h1>{title}</h1>
+//               </div>
+//               <div style={reportDate}>
+//                 <h3>{date}</h3>
+//               </div>
+//             </div>
+//             <div style={report_area}>
+//               <div className="report_header_child" style={parent}>
+//                 {parameters.map((value, index) => (
+//                   <p key={index} style={child} >{value}</p>
+//                 ))}
+//               </div>
+//               <div style={table_area}>
+//                 {reportType[0] === 'list' ?
+//                   (this.state.printerFriendly === false ?
+//                     <ViewAsList report={report} headers={headers} total={total} divider={dividers} columnWidths={columnWidths} />
+//                     :
+//                     <PrinterFriendlyList report={report.slice(this.state.start, this.state.end)} headers={headers} total={total} divider={dividers} columnWidths={columnWidths} />
+//                   )
+//                   :
+//                   (this.state.printerFriendly === false ?
+//                     <EnhancedReportTable report={report.slice(this.state.start, this.state.end)} headers={headers} total={total} divider={dividers} columnWidths={columnWidths} />
+//                     // <Tester report={report}/>
+//                     :
+//                     <PrinterFriendlyTable report={report.slice(this.state.start, this.state.end)} headers={headers} total={total} divider={dividers} columnWidths={columnWidths} />
+//                   )}
+//               </div>
+//             </div>
+//           </>
+//         )}
+//         <button onClick={() => this.prevPage()}>prev</button>
+//         <button onClick={() => this.nextPage()}>next</button>
+//         <select id="pageSelect" name="pageSelect" value={this.state.page + 1} onChange={(e) => this.changePage(parseInt(e.target.value - 1))}>
+//           {[...Array(this.state.totalPages).keys()].map((page) => (
+//             <option key={page + 1} value={page + 1}>
+//               Page {page + 1}
+//             </option>
+//           ))}
+//         </select>
+//       </div>
+//     );
+//   }
+// }
+
+// export default withRouter(EnhancedReport);
+
+// const buttonStyle = {
+//   position: "fixed",
+//   top: "10px",
+//   left: "10px"
+// }
+
+// const logoStyle = {
+//   marginLeft: "10px",
+//   marginRight: "20px",
+//   width: "50px",
+//   height: "50px"
+// }
+
+// const report_title = {
+//   width: "80%",
+//   marginRight: "auto",
+//   marginLeft: "auto"
+// };
+
+// const reportTitle = {
+//   width: "60%",
+//   textAlign: "left",
+//   display: "inline-block"
+// };
+// const reportDate = {
+//   width: "30%",
+//   display: "inline-block",
+//   textAlign: "right"
+// };
+
+// const report_area = {
+//   width: "100%"
+// };
+
+// const table_area = {
+//   width: '80%',
+//   margin: 'auto',
+// }
+// const parent = {
+//   border: "0.5px solid #DEDEDE",
+//   borderRadius: "10px",
+//   marginBottom: "20px",
+//   width: "80%",
+//   marginRight: "auto",
+//   marginLeft: "auto",
+//   textAlign: "center"
+// };
+
+// const child = {
+//   display: "inline-block",
+//   margin: "5px",
+//   paddingLeft: "10px",
+//   fontSize: "9pt"
+// };
+
+

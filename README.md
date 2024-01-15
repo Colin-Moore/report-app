@@ -1,70 +1,37 @@
-# Getting Started with Create React App
+To export a report to be viewed with this app you must add the appropriate tags into your Progress source code.
 
-This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
 
-## Available Scripts
+{csv_exp.i '!title'} //title of the report
+{csv_exp.i 'TITLE OF REPORT'}
+{csv_exp.i '!date'} //date of the report
+{csv_exp.i 'DATE OF REPORT'}
+{csv_exp.i '!params'} //parameters of the report
+{csv_exp.i 'PARAMETERS'}
+{csv_exp.i '!divider'}  //OPTIONAL - only needed for reports that have dividers by date range or something like that 
+                        // (like Customer Sales Detail Report)  Omit for other reports.
+{csv_exp.i 'DIVIDER INFO'}
+{csv_exp.i '!header'} //this is the headers of the report columns.
+{csv_exp.i 'HEADERS'}
 
-In the project directory, you can run:
 
-### `npm start`
 
-Runs the app in the development mode.\
-Open [http://localhost:3000](http://localhost:3000) to view it in your browser.
+each section of a report should contain the following:
+{csv_exp.i '!section'}  // specifies a new report section is starting. and all output found below until an '!end' tag is 
+                        // found belongs to this section.
+{csv_exp.i '!name'} //specifies that the line below contains the name of the section/subsection
+{csv_exp.i 'NAME OF THE SECTION'}
+{csv_exp.i '!data'} // specifies that the following data will contain the actual data values of the section.
 
-The page will reload when you make changes.\
-You may also see any lint errors in the console.
+//this is where you would be exporting the actual section data.
+//within you foreach loop:
+{csv_exp.i 'DATA'
+           'DATA'
+           ...data }
 
-### `npm test`
 
-Launches the test runner in the interactive watch mode.\
-See the section about [running tests](https://facebook.github.io/create-react-app/docs/running-tests) for more information.
 
-### `npm run build`
+{csv_exp.i '!end'} //specifies the end of a particular section.  These won't always happen after each section.  Depending on how mnay subsections a section has, you may end up with several lines of '!end' tags in a row - this is fine.
 
-Builds the app for production to the `build` folder.\
-It correctly bundles React in production mode and optimizes the build for the best performance.
+{csv_exp.i '!total'} //specifies the total line of the particular section being parsed at that time.
 
-The build is minified and the filenames include the hashes.\
-Your app is ready to be deployed!
-
-See the section about [deployment](https://facebook.github.io/create-react-app/docs/deployment) for more information.
-
-### `npm run eject`
-
-**Note: this is a one-way operation. Once you `eject`, you can't go back!**
-
-If you aren't satisfied with the build tool and configuration choices, you can `eject` at any time. This command will remove the single build dependency from your project.
-
-Instead, it will copy all the configuration files and the transitive dependencies (webpack, Babel, ESLint, etc) right into your project so you have full control over them. All of the commands except `eject` will still work, but they will point to the copied scripts so you can tweak them. At this point you're on your own.
-
-You don't have to ever use `eject`. The curated feature set is suitable for small and middle deployments, and you shouldn't feel obligated to use this feature. However we understand that this tool wouldn't be useful if you couldn't customize it when you are ready for it.
-
-## Learn More
-
-You can learn more in the [Create React App documentation](https://facebook.github.io/create-react-app/docs/getting-started).
-
-To learn React, check out the [React documentation](https://reactjs.org/).
-
-### Code Splitting
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/code-splitting](https://facebook.github.io/create-react-app/docs/code-splitting)
-
-### Analyzing the Bundle Size
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size](https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size)
-
-### Making a Progressive Web App
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app](https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app)
-
-### Advanced Configuration
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/advanced-configuration](https://facebook.github.io/create-react-app/docs/advanced-configuration)
-
-### Deployment
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/deployment](https://facebook.github.io/create-react-app/docs/deployment)
-
-### `npm run build` fails to minify
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify](https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify)
+{csv_exp.i '!grandtotal'} //specifies the grand total line of the report.

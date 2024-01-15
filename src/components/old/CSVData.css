@@ -1,0 +1,10 @@
+@media print{
+
+    button{
+        display: none;
+    }
+    h1{
+        display: none;
+    }
+
+}
